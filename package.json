@@ -1,0 +1,22 @@
+{
+  "name": "file-downloader",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "web",
+    "server"
+  ],
+  "scripts": {
+    "start": "concurrently \"npm run start:server\" \"npm run start:web\"",
+    "start:server": "npm --prefix server start",
+    "start:web": "npm --prefix web start"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "highland": "^2.13.5",
+    "typescript": "^4.9.5"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
