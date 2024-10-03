@@ -1,15 +1,24 @@
-import { Button, Text } from "@fluentui/react-components";
+import {
+  Button,
+  MessageBar,
+  MessageBarBody,
+  MessageBarTitle,
+  Text,
+} from "@fluentui/react-components";
 import { Header } from "../../components/Header";
 import { useState } from "react";
 import { set } from "idb-keyval";
 import { useNavigate } from "react-router-dom";
+import { AlertMessage } from "./components/AlertMessage";
 
 export const MainPage = () => {
+  const navigate = useNavigate();
+
   const [downloaded, setDownloaded] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [totalLines, setTotalLines] = useState<number | null>(null);
 
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const downloadFile = async () => {
     setLoading(true);
@@ -21,10 +30,8 @@ export const MainPage = () => {
         throw new Error("Failed to download file");
       }
 
-      const totalLinesHeader = response.headers.get("X-LINES-COUNT");
-      const totalLines = totalLinesHeader
-        ? parseInt(totalLinesHeader, 10)
-        : null;
+      const totalLinesHeader = response.headers.get("X-Lines-Count");
+      setTotalLines(totalLinesHeader ? Number(totalLinesHeader) : 0);
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder("utf-8");
@@ -46,9 +53,6 @@ export const MainPage = () => {
       await set("cachedFile", fileContent);
 
       setDownloaded(true);
-      navigate("/data-table", {
-        state: { totalCount: totalLines },
-      });
     } catch (err) {
       console.error("Error downloading file:", err);
       setError("Failed to download the file");
@@ -63,23 +67,44 @@ export const MainPage = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        width: "100vw",
-        height: "100vh",
       }}
     >
       <Header />
-      <Button
-        appearance="primary"
-        onClick={downloadFile}
-        disabled={downloaded || loading}
+      <div
+        style={{
+          paddingTop: 20,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
       >
-        {loading
-          ? `Downloading...`
-          : downloaded
-          ? "File Cached"
-          : "Download and Cache File"}
-      </Button>
-      {error && <Text style={{ color: "red" }}>{error}</Text>}
+        <Button
+          appearance="primary"
+          onClick={downloadFile}
+          disabled={downloaded || loading}
+        >
+          {loading
+            ? `Downloading...`
+            : downloaded
+            ? "File Cached"
+            : "Download and Cache File"}
+        </Button>
+        {totalLines && <Text>Total lines: {totalLines}</Text>}
+        {error && (
+          <AlertMessage intent="error" message={error} header="Error" />
+        )}
+        {downloaded && (
+          <AlertMessage
+            intent="success"
+            message="File successfully cached"
+            header="Success"
+            actionTitle="Open table"
+            action={() =>
+              navigate("/data-table", { state: { totalLines: totalLines } })
+            }
+          />
+        )}
+      </div>
     </div>
   );
 };

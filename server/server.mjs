@@ -10,6 +10,7 @@ const csvFilePath = path.join("./mock_50mb_file.csv");
 
 const server = createServer(async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Expose-Headers", "X-Lines-Count");
 
   if (req.method === "GET" && req.url === "/download") {
     const lineCount = await countLines(csvFilePath);
@@ -17,7 +18,7 @@ const server = createServer(async (req, res) => {
     res.writeHead(200, {
       "Content-Type": "text/csv",
       "Transfer-Encoding": "chunked",
-      "X-LINES-COUNT": lineCount.toString(),
+      "X-Lines-Count": lineCount.toString(),
     });
 
     const fileStream = fs.createReadStream(csvFilePath);

@@ -3,12 +3,12 @@ import { Header } from "../../components/Header";
 import { Column, DataTable, Item } from "./components/DataTable";
 import { get } from "idb-keyval";
 import { useLocation } from "react-router-dom";
-import { parseCSV } from "./helpers/parseCSV";
 import { Loading } from "../../components/Loading";
+import { parseCSV } from "./helpers/parseCSV";
 
 export const TablePage = () => {
   const location = useLocation();
-  const { totalCount } = location.state || {};
+  const { totalLines } = location.state || {};
 
   const [tableSize, setTableSize] = useState<number>(10);
 
@@ -23,7 +23,6 @@ export const TablePage = () => {
 
       if (csvData) {
         const { parsedColumns, parsedItems } = parseCSV(csvData);
-
         setColumns(parsedColumns);
         setItems(parsedItems);
       }
@@ -32,7 +31,7 @@ export const TablePage = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [setColumns, setItems, setLoading]);
 
   useEffect(() => {
     fetchData();
@@ -46,8 +45,6 @@ export const TablePage = () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        width: "100vw",
-        minHeight: "100vh",
       }}
     >
       <Header />
@@ -56,7 +53,7 @@ export const TablePage = () => {
         items={items}
         size={tableSize}
         onChangeSize={setTableSize}
-        totalCount={totalCount}
+        totalCount={totalLines}
       />
     </div>
   );

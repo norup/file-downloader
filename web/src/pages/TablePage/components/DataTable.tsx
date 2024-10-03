@@ -69,12 +69,7 @@ export const DataTable = ({
   }, [size, items]);
 
   return (
-    <div
-      style={{
-        paddingLeft: 40,
-        paddingRight: 30,
-      }}
-    >
+    <div>
       <Dropdown value={size.toString()} onOptionSelect={handleSizeChange}>
         <Option value="5">5 rows per page</Option>
         <Option value="10">10 rows per page</Option>
@@ -97,7 +92,9 @@ export const DataTable = ({
             <TableRow key={rowIndex}>
               {columns.map((column) => (
                 <TableCell key={column.columnKey}>
-                  <TableCellLayout>{item[column.columnKey]}</TableCellLayout>
+                  <TableCellLayout truncate>
+                    {item[column.columnKey]}
+                  </TableCellLayout>
                 </TableCell>
               ))}
             </TableRow>
